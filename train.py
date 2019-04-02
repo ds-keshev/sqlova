@@ -220,7 +220,7 @@ def train(train_loader, train_table, model, model_bert, opt, bert_config, tokeni
 
         if cnt < st_pos:
             continue
-        # Get fields
+        # Get fields, parse training input into variables
         nlu, nlu_t, sql_i, sql_q, sql_t, tb, hs_t, hds = get_fields(t, train_table, no_hs_t=True, no_sql_t=True)
         # nlu  : natural language utterance
         # nlu_t: tokenized nlu
@@ -233,7 +233,8 @@ def train(train_loader, train_table, model, model_bert, opt, bert_config, tokeni
         g_sc, g_sa, g_wn, g_wc, g_wo, g_wv = get_g(sql_i)
         # get ground truth where-value index under CoreNLP tokenization scheme. It's done already on trainset.
         g_wvi_corenlp = get_g_wvi_corenlp(t)
-
+		
+		#bert embeddings here
         wemb_n, wemb_h, l_n, l_hpu, l_hs, \
         nlu_tt, t_to_tt_idx, tt_to_t_idx \
             = get_wemb_bert(bert_config, model_bert, tokenizer, nlu_t, hds, max_seq_length,
@@ -254,7 +255,14 @@ def train(train_loader, train_table, model, model_bert, opt, bert_config, tokeni
             # e.g. train: 32.
             continue
 
-        # score
+        # score - for shallow layer?
+        #sc - select_column
+        #sa - select-aggregation
+        #wn - where-number
+        #wc - where-column
+        #wo - where-operator
+        #wv - where-value
+        
         s_sc, s_sa, s_wn, s_wc, s_wo, s_wv = model(wemb_n, l_n, wemb_h, l_hpu, l_hs,
                                                    g_sc=g_sc, g_sa=g_sa, g_wn=g_wn, g_wc=g_wc, g_wvi=g_wvi)
 
@@ -561,7 +569,7 @@ if __name__ == '__main__':
     BERT_PT_PATH = path_wikisql
 
     path_save_for_evaluation = './'
-
+	
     ## 3. Load data
     train_data, train_table, dev_data, dev_table, train_loader, dev_loader = get_data(path_wikisql, args)
     # test_data, test_table = load_wikisql_data(path_wikisql, mode='test', toy_model=args.toy_model, toy_size=args.toy_size, no_hs_tok=True)
