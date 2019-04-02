@@ -2,6 +2,7 @@ import records
 import re
 from babel.numbers import parse_decimal, NumberFormatError
 from wikisql.lib.query import Query
+from sqlalchemy.pool import QueuePool
 
 # Jan 3, 2019. Wonseok modify the lib. path
 
@@ -13,7 +14,7 @@ num_re = re.compile(r'[-+]?\d*\.\d+|\d+')
 class DBEngine:
 
     def __init__(self, fdb):
-        self.db = records.Database('sqlite:///{}'.format(fdb))
+        self.db = records.Database('sqlite:///{}'.format(fdb),poolclass=QueuePool)
 
     def execute_query(self, table_id, query, *args, **kwargs):
         return self.execute(table_id, query.sel_index, query.agg_index, query.conditions, *args, **kwargs)

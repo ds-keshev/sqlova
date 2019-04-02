@@ -4,6 +4,8 @@
 import records
 import re
 from babel.numbers import parse_decimal, NumberFormatError
+from wikisql.lib.query import Query
+from sqlalchemy.pool import QueuePool
 
 
 schema_re = re.compile(r'\((.+)\)') # group (.......) dfdf (.... )group
@@ -18,8 +20,8 @@ class DBEngine:
 
     def __init__(self, fdb):
         #fdb = 'data/test.db'
-        self.db = records.Database('sqlite:///{}'.format(fdb))
-
+        self.db = records.Database('sqlite:///{}'.format(fdb),poolclass=QueuePool)
+        
     def execute_query(self, table_id, query, *args, **kwargs):
         return self.execute(table_id, query.sel_index, query.agg_index, query.conditions, *args, **kwargs)
 
