@@ -557,6 +557,7 @@ if __name__ == '__main__':
     ## 2. Paths
     path_h = '/home/wonseok'
     path_wikisql = os.path.join(path_h, 'data', 'wikisql_tok')
+    path_wikisql = '/DataDrive/master-wikisql/annotated_data/'
     BERT_PT_PATH = path_wikisql
 
     path_save_for_evaluation = './'
