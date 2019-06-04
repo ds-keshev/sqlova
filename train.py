@@ -235,10 +235,10 @@ def train(train_loader, train_table, model, model_bert, opt, bert_config, tokeni
         g_wvi_corenlp = get_g_wvi_corenlp(t)
 		
 		#bert embeddings here
-        wemb_n, wemb_h, l_n, l_hpu, l_hs, \
-        nlu_tt, t_to_tt_idx, tt_to_t_idx \
-            = get_wemb_bert(bert_config, model_bert, tokenizer, nlu_t, hds, max_seq_length,
-                            num_out_layers_n=num_target_layers, num_out_layers_h=num_target_layers)
+		wemb_n, wemb_h, l_n, l_hpu, l_hs, \
+		nlu_tt, t_to_tt_idx, tt_to_t_idx \
+			= get_wemb_bert(bert_config, model_bert, tokenizer, nlu_t, hds, max_seq_length,
+							num_out_layers_n=num_target_layers, num_out_layers_h=num_target_layers)
 
         # wemb_n: natural language embedding
         # wemb_h: header embedding
@@ -426,11 +426,11 @@ def test(data_loader, data_table, model, model_bert, bert_config, tokenizer,
         g_sc, g_sa, g_wn, g_wc, g_wo, g_wv = get_g(sql_i)
         g_wvi_corenlp = get_g_wvi_corenlp(t)
 
-        wemb_n, wemb_h, l_n, l_hpu, l_hs, \
-        nlu_tt, t_to_tt_idx, tt_to_t_idx \
-            = get_wemb_bert(bert_config, model_bert, tokenizer, nlu_t, hds, max_seq_length,
-                            num_out_layers_n=num_target_layers, num_out_layers_h=num_target_layers)
-        try:
+		wemb_n, wemb_h, l_n, l_hpu, l_hs, \
+		nlu_tt, t_to_tt_idx, tt_to_t_idx \
+			= get_wemb_bert(bert_config, model_bert, tokenizer, nlu_t, hds, max_seq_length,
+							num_out_layers_n=num_target_layers, num_out_layers_h=num_target_layers)
+		try:
             g_wvi = get_g_wvi_bert_from_g_wvi_corenlp(t_to_tt_idx, g_wvi_corenlp)
             g_wv_str, g_wv_str_wp = convert_pr_wvi_to_string(g_wvi, nlu_t, nlu_tt, tt_to_t_idx, nlu)
 

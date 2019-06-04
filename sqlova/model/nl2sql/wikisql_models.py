@@ -1459,7 +1459,7 @@ class FT_Scalar_1(nn.Module):
         # wemb_n = [B, max_nlu_token_length, hS] # here, # of target_layer is fixed to 1.
         # wemb_h = [B, max_header #, hS]
 
-        s_sc = self.scp(wemb_h, l_hs)
+        s_sc = self.scp(wemb_h, l_hs) #select column - header embedding
         if g_sc:
             pr_sc = g_sc
         else:
@@ -1468,7 +1468,7 @@ class FT_Scalar_1(nn.Module):
         # s_sa
         idx_st = 1
         idx_ed = 1 + self.n_agg_ops
-        s_sa = self.sap(wemb_h, pr_sc, idx_st, idx_ed)
+        s_sa = self.sap(wemb_h, pr_sc, idx_st, idx_ed) #select aggregator - header embedding - dependent on the predicted select column, which is the actual select column at train
 
         if g_sa:
             pr_sa = g_sa
@@ -1477,7 +1477,7 @@ class FT_Scalar_1(nn.Module):
 
         # where_number
 
-        s_wn = self.wnp(cls_vec)
+        s_wn = self.wnp(cls_vec) #number of where columns, based on pooled bert?
         if g_wn:
             pr_wn = g_wn
         else:
@@ -1486,18 +1486,18 @@ class FT_Scalar_1(nn.Module):
         # wc
         idx_st = idx_ed+1
         idx_ed = idx_st+1
-        s_wc = self.wcp(wemb_h, l_hs, idx_st, idx_ed)
+        s_wc = self.wcp(wemb_h, l_hs, idx_st, idx_ed) #where columns - header embeddings 
 
         if g_wc:
             pr_wc = g_wc
         else:
-            pr_wc = pred_wc(pr_wn, s_wc)
+            pr_wc = pred_wc(pr_wn, s_wc) #output predicted where columns is a function of the static wc output and 
 
         # wo
         idx_st = idx_ed+1
         idx_ed = idx_st + self.n_cond_ops
 
-        s_wo = self.wop(wemb_h, pr_wc, idx_st, idx_ed)
+        s_wo = self.wop(wemb_h, pr_wc, idx_st, idx_ed) #where operators - header emebeddigns and predicted where columns
 
         if g_wo:
             pr_wo = g_wo
@@ -1506,7 +1506,7 @@ class FT_Scalar_1(nn.Module):
 
         # wv
         # s_wv =  [bS, 4, mL, 2]
-        s_wv = self.wvp(wemb_n, l_n, pr_wc)
+        s_wv = self.wvp(wemb_n, l_n, pr_wc) #where values - question embeddings, function of predictged where columns
 
         # print(s_wv)
         # s_wv = F.tanh(s_wv)

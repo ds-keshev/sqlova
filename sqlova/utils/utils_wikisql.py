@@ -765,7 +765,12 @@ def get_wemb_n(i_nlu, l_n, hS, num_hidden_layers, all_encoder_layer, num_out_lay
     """
     bS = len(l_n)
     l_n_max = max(l_n)
+    
     wemb_n = torch.zeros([bS, l_n_max, hS * num_out_layers_n]).to(device)
+    
+   #print(all_encoder_layer)
+   #print(wemb_n.shape)
+    
     for b in range(bS):
         # [B, max_len, dim]
         # Fill zero for non-exist part.

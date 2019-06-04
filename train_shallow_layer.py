@@ -123,8 +123,9 @@ def construct_hyper_param(parser):
 
 
 def get_bert(BERT_PT_PATH, bert_type, do_lower_case, no_pretraining):
-
-
+    print('PRETRAINGINDIGNDS')
+    print(no_pretraining)
+    print('/n')
     bert_config_file = os.path.join(BERT_PT_PATH, f'bert_config_{bert_type}.json')
     vocab_file = os.path.join(BERT_PT_PATH, f'vocab_{bert_type}.txt')
     init_checkpoint = os.path.join(BERT_PT_PATH, f'pytorch_model_{bert_type}.bin')
@@ -135,7 +136,7 @@ def get_bert(BERT_PT_PATH, bert_type, do_lower_case, no_pretraining):
     tokenizer = tokenization.FullTokenizer(
         vocab_file=vocab_file, do_lower_case=do_lower_case)
     bert_config.print_status()
-
+    
     model_bert = BertModel(bert_config)
     if no_pretraining:
         pass
@@ -294,12 +295,14 @@ def train(train_loader, train_table, model, model_bert, opt, bert_config, tokeni
         # get ground truth where-value index under CoreNLP tokenization scheme. It's done already on trainset.
         g_wvi_corenlp = get_g_wvi_corenlp(t)
 
-
         all_encoder_layer, pooled_output, tokens, i_nlu, i_hds, \
-        l_n, l_hpu, l_hs, \
-        nlu_tt, t_to_tt_idx, tt_to_t_idx \
-            = get_bert_output(model_bert, tokenizer, nlu_t, hds, max_seq_length)
-
+		l_n, l_hpu, l_hs, \
+		nlu_tt, t_to_tt_idx, tt_to_t_idx \
+		= get_bert_output(model_bert, tokenizer, nlu_t, hds, max_seq_length)
+		#takes tokenized input query and tokenized headers
+		#outputs encodoerlayer, pooled output, tokens, index for input query (spares), input headeres (sparse), 
+		#l_n = column length for each batch
+		#l_hpu = 
         try:
             #
             g_wvi = get_g_wvi_bert_from_g_wvi_corenlp(t_to_tt_idx, g_wvi_corenlp)
@@ -309,11 +312,14 @@ def train(train_loader, train_table, model, model_bert, opt, bert_config, tokeni
             # During test, that example considered as wrongly answered.
             # e.g. train: 32.
             continue
-
+        #print(all_encoder_layer)
+        print(i_nlu, l_n)
         wemb_n = get_wemb_n(i_nlu, l_n, bert_config.hidden_size,
-                            bert_config.num_hidden_layers, all_encoder_layer, 1)
+							bert_config.num_hidden_layers, all_encoder_layer, 1)
         wemb_h = get_wemb_h_FT_Scalar_1(i_hds, l_hs, bert_config.hidden_size, all_encoder_layer,
                                         col_pool_type=col_pool_type)
+        print('WEMB STUFF')
+        print(wemb_n.shape)
         # wemb_h = [B, max_header_number, hS]
         cls_vec = pooled_output
 
@@ -322,7 +328,20 @@ def train(train_loader, train_table, model, model_bert, opt, bert_config, tokeni
         # score
         s_sc, s_sa, s_wn, s_wc, s_wo, s_wv = model(wemb_n, l_n, wemb_h, l_hs, cls_vec,
                                                    g_sc=g_sc, g_sa=g_sa, g_wn=g_wn, g_wc=g_wc, g_wo=g_wo, g_wvi=g_wvi)
-
+        print('sc - select: column name')
+        print(s_sc.shape)
+        print('sa - select: aggregator')
+        print(s_sa.shape)
+        print('wn - where: number of columns')
+        print(s_wn.shape)
+        print('wc - where: column name')
+        print(s_wc.shape)
+        print('wo - where: operator')
+        print(s_wo.shape)
+        print('wv - where: value')
+        print(s_wv.shape)
+        print('asdasd')
+        x = asd
         # Calculate loss & step
         loss = Loss_sw_se(s_sc, s_sa, s_wn, s_wc, s_wo, s_wv, g_sc, g_sa, g_wn, g_wc, g_wo, g_wvi)
 
@@ -500,7 +519,8 @@ def test(data_loader, data_table, model, model_bert, bert_config, tokenizer,
         l_n, l_hpu, l_hs, \
         nlu_tt, t_to_tt_idx, tt_to_t_idx \
             = get_bert_output(model_bert, tokenizer, nlu_t, hds, max_seq_length)
-
+        print(i_nlu)
+        print(l_n)
         try:
             g_wvi = get_g_wvi_bert_from_g_wvi_corenlp(t_to_tt_idx, g_wvi_corenlp)
             g_wv_str, g_wv_str_wp = convert_pr_wvi_to_string(g_wvi, nlu_t, nlu_tt, tt_to_t_idx, nlu)
@@ -670,16 +690,16 @@ if __name__ == '__main__':
     ## 2. Paths
     path_h = '/home/wonseok'
     path_wikisql = os.path.join(path_h, 'data', 'wikisql_tok')
+    path_wikisql = '/DataDrive/master-wikisql/annotated_data/'
     BERT_PT_PATH = path_wikisql
 
     path_save_for_evaluation = './'
 
     ## 3. Load data
     train_data, train_table, dev_data, dev_table, train_loader, dev_loader = get_data(path_wikisql, args)
-
+	
     ## 4. Build & Load models
     model, model_bert, tokenizer, bert_config = get_models(args, BERT_PT_PATH)
-
     # nsml binding
 
     ## 5. Get optimizers
